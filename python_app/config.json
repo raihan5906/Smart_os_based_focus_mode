@@ -16,7 +16,6 @@
         "chrome.exe",
         "msedge.exe"
     ],
-
     "distraction_blacklist": [
         "steam.exe",
         "epicgameslauncher.exe",
@@ -38,7 +37,6 @@
         "nox.exe",
         "ldplayer.exe"
     ],
-
     "website_keywords_block": [
         "youtube music",
         "spotify",
@@ -48,7 +46,6 @@
         "jiosaavn",
         "apple music",
         "amazon music",
-
         "song",
         "songs",
         "music",
@@ -61,13 +58,13 @@
         "full song",
         "remix",
         "cover song",
+        "vlogs",
         "live concert",
         "bgm",
         "instrumental",
         "lofi",
         "dj mix",
         "8d audio",
-
         "bollywood",
         "hollywood music",
         "tollywood",
@@ -75,7 +72,6 @@
         "punjabi songs",
         "kpop",
         "jpop",
-
         "arijit singh",
         "atif aslam",
         "jubin nautiyal",
@@ -97,7 +93,6 @@
         "gv prakash",
         "yuvan",
         "vijay antony",
-
         "taylor swift",
         "ed sheeran",
         "billie eilish",
@@ -114,7 +109,6 @@
         "one direction",
         "bts",
         "blackpink",
-
         "poki",
         "crazygames",
         "y8",
@@ -126,7 +120,6 @@
         "armorgames",
         "kongregate",
         "addictinggames",
-
         "roblox",
         "minecraft",
         "free fire",
@@ -143,7 +136,6 @@
         "league of legends",
         "mobile legends",
         "arena of valor",
-
         "gta",
         "gta v",
         "gta5",
@@ -164,7 +156,6 @@
         "shellshockers",
         "bloons",
         "bloons td",
-
         "chess.com",
         "lichess",
         "ludo",
@@ -172,26 +163,22 @@
         "carrom",
         "8 ball pool",
         "billiards",
-
         "casino",
         "slots",
         "poker",
         "blackjack",
-
         "netflix",
         "hotstar",
         "prime video",
         "amazon prime",
         "disney",
         "hulu",
-
         "facebook",
         "instagram",
         "twitter",
         "tiktok",
         "reddit",
         "twitch",
-
         "ajjubhai",
         "dynamo gaming",
         "mortal",
@@ -201,7 +188,6 @@
         "triggered insaan gaming",
         "techno gamerz",
         "chapati hindustani gamer",
-
         "pewdiepie",
         "mrbeast",
         "mrbeast gaming",
@@ -215,7 +201,6 @@
         "xqc",
         "kai cenat",
         "ishowspeed",
-
         "carryminati",
         "ashish chanchlani",
         "bb ki vines",
@@ -234,7 +219,6 @@
         "charli d amelio",
         "khaby lame"
     ],
-
     "keyword_distraction": [
         "song",
         "songs",
@@ -248,7 +232,6 @@
         "bgm",
         "instrumental",
         "mp3",
-
         "game",
         "games",
         "gaming",
@@ -270,26 +253,23 @@
         "highlights",
         "clips",
         "shorts",
-
         "steam",
+        "vlogs",
         "riot",
         "discord",
         "twitch",
         "xbox",
         "xbox live",
         "xbox game bar",
-
         "casino",
         "slots",
         "poker",
         "blackjack",
-
         "movies",
         "anime",
         "comedy",
         "entertainment"
     ],
-
     "youtube_education_keywords": [
         "lecture",
         "tutorial",
@@ -318,9 +298,8 @@
         "revision",
         "problem solving"
     ],
-
-    "default_study_start": "18:00",
-    "default_study_end": "22:00",
+    "default_study_start": "13:00",
+    "default_study_end": "00:00",
     "schedule_enabled": true,
     "grace_period_seconds": 5
 }
