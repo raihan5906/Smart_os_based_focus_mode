@@ -1,57 +1,43 @@
-# tab_block_server.py
 from flask import Flask, request, jsonify
-import json
-import os
+from flask_cors import CORS
+import json, os
 from datetime import datetime
+from classifier import Classifier
 
 app = Flask(__name__)
+CORS(app) # Prevents browser blocking the request
+classifier = Classifier()
 
-BASE = os.path.dirname(__file__)
-CFG_PATH = os.path.join(BASE, "config.json")
-
-def load_config():
-    with open(CFG_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def is_within_time(start, end):
+def is_study_time():
+    cfg = classifier.cfg
+    if not cfg.get("schedule_enabled", True): return False
     now = datetime.now().time()
-    s = datetime.strptime(start, "%H:%M").time()
-    e = datetime.strptime(end, "%H:%M").time()
-    if s <= e:
-        return s <= now <= e
-    return now >= s or now <= e
+    s = datetime.strptime(cfg["default_study_start"], "%H:%M").time()
+    e = datetime.strptime(cfg["default_study_end"], "%H:%M").time()
+    return s <= now <= e if s <= e else now >= s or now <= e
 
 @app.route("/check", methods=["POST"])
-def check_tab():
-    data = request.get_json(force=True)
-    cfg = load_config()
+def check():
+    data = request.json
+    if not is_study_time():
+        return jsonify(action="allow")
 
-    if not cfg.get("schedule_enabled", False):
-        return jsonify({"action": "allow"})
+    # AI Classification for YouTube
+    if "youtube.com/watch" in data.get("url", ""):
+        verdict = classifier.ai_classify(data)
+        if verdict == "distraction":
+            return jsonify(action="warn_then_close", 
+                           seconds=classifier.cfg.get("grace_period_seconds", 5),
+                           reason="AI: Distracting Content")
 
-    if not is_within_time(cfg["default_study_start"], cfg["default_study_end"]):
-        return jsonify({"action": "allow"})
+    # Keyword check for other sites
+    for k in classifier.cfg.get("website_keywords_block", []):
+        if k.lower() in data.get("url", "").lower() or k.lower() in data.get("title", "").lower():
+            return jsonify(action="warn_then_close", 
+                           seconds=classifier.cfg.get("grace_period_seconds", 5),
+                           reason=f"Blocked site: {k}")
 
-    url = (data.get("url") or "").lower()
-    title = (data.get("title") or "").lower()
-    combined = url + " " + title
-
-    # YouTube education exception
-    if "youtube.com/watch" in url:
-        for kw in cfg.get("youtube_education_keywords", []):
-            if kw in combined:
-                return jsonify({"action": "allow"})
-
-    # Block distractions
-    for kw in cfg.get("website_keywords_block", []):
-        if kw in combined:
-            return jsonify({
-                "action": "warn_then_close",
-                "seconds": cfg.get("grace_period_seconds", 5),
-                "reason": kw
-            })
-
-    return jsonify({"action": "allow"})
+    return jsonify(action="allow")
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000)
+    app.run(port=5000, debug=False, threaded=True)

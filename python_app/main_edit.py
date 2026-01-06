@@ -7,7 +7,6 @@ import sys
 import os
 import subprocess
 import time
-import multiprocessing  # Added for EXE stability
 
 print("MAIN.PY STARTED")
 
@@ -162,23 +161,20 @@ class App:
 
         # ================= SERVICES =================
         self.start_tab_server()
-        self.monitor_thread = monitor.Monitor(self) # Changed name to avoid conflict
-        self.monitor_thread.start()
+        self.monitor = monitor.Monitor(self)
+        self.monitor.start()
 
         self.update_status_loop()
 
     # ---------------- TAB SERVER ---------------- #
     def start_tab_server(self):
         try:
-            # Creationflags hides the terminal window on Windows
-            server_script = resource_path("tab_block_server.py")
             subprocess.Popen(
-                [sys.executable, server_script],
+                [sys.executable, resource_path("tab_block_server.py")],
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+                stderr=subprocess.DEVNULL
             )
-            self.append_log("AI Tab Block server started (Port 5000)")
+            self.append_log("Tab block server started")
         except Exception as e:
             self.append_log(f"Tab server error: {e}")
 
@@ -228,11 +224,8 @@ class App:
 
     # ---------------- CONFIG ---------------- #
     def load_config(self):
-        try:
-            with open(CFG_PATH, "r", encoding="utf-8") as f:
-                self.cfg = json.load(f)
-        except FileNotFoundError:
-            self.cfg = {"default_study_start": "09:00", "default_study_end": "17:00", "schedule_enabled": True}
+        with open(CFG_PATH, "r", encoding="utf-8") as f:
+            self.cfg = json.load(f)
 
     def save_config(self):
         with open(CFG_PATH, "w", encoding="utf-8") as f:
@@ -244,7 +237,7 @@ class App:
         self.cfg["default_study_end"] = self.end_var.get()
         self.cfg["schedule_enabled"] = True
         self.save_config()
-        self.append_log(f"Schedule Saved: {self.start_var.get()} to {self.end_var.get()}")
+        self.append_log("Study timer updated")
 
     # ---------------- STATUS ---------------- #
     def update_status_loop(self):
@@ -254,32 +247,18 @@ class App:
             end = datetime.strptime(self.cfg["default_study_end"], "%H:%M").time()
 
             active = start <= now <= end if start <= end else (now >= start or now <= end)
-            
-            if active:
-                self.status_var.set("Focus Mode Active")
-                self.active_badge.config(text="ACTIVE", fg="#1b7f2a", bg="#d6f5df")
-            else:
-                self.status_var.set("Outside Scheduled Hours")
-                self.active_badge.config(text="IDLE", fg="#666", bg="#eee")
+            self.status_var.set(
+                "Focus Mode Active" if active else "Waiting for scheduled time"
+            )
         except:
-            self.status_var.set("Configuration Error")
+            self.status_var.set("Waiting for schedule")
 
-        self.root.after(2000, self.update_status_loop)
+        self.root.after(1000, self.update_status_loop)
 
     # ---------------- LOGS ---------------- #
     def append_log(self, text):
         ts = datetime.now().strftime("%H:%M:%S")
         self.log_store.append(f"[{ts}] {text}")
-        if self.logs_visible:
-            self.refresh_log_display()
-
-    def refresh_log_display(self):
-        self.log_box.config(state="normal")
-        self.log_box.delete("1.0", "end")
-        for line in self.log_store:
-            self.log_box.insert("end", line + "\n")
-        self.log_box.see("end")
-        self.log_box.config(state="disabled")
 
     def toggle_logs(self):
         if self.logs_visible:
@@ -287,11 +266,15 @@ class App:
             self.logs_visible = False
         else:
             self.log_box.pack(fill="both", padx=15, pady=10)
-            self.refresh_log_display()
+            self.log_box.config(state="normal")
+            self.log_box.delete("1.0", "end")
+            for line in self.log_store:
+                self.log_box.insert("end", line + "\n")
+            self.log_box.config(state="disabled")
             self.logs_visible = True
 
+
 if __name__ == "__main__":
-    multiprocessing.freeze_support() # Essential for PyInstaller
     root = tk.Tk()
-    app = App(root)
+    App(root)
     root.mainloop()
